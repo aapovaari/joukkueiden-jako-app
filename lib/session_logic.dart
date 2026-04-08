@@ -97,12 +97,12 @@ class SessionLogic extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Remove a player from the session by name
+  /// Remove a player from the session
   ///
   /// Attributes:
-  /// - [String] name: The name of the player to be removed
-  void removePlayer(String name) {
-    players.removeWhere((player) => player.name == name);
+  /// - [Player] player: The player to be removed
+  void removePlayer(Player player) {
+    players.remove(player);
     notifyListeners();
   }
 
