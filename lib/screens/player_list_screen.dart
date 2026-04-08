@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:joukkueiden_jako/player.dart';
+import 'package:provider/provider.dart';
+import 'package:joukkueiden_jako/session_logic.dart';
 
 class PlayerlistScreen extends StatefulWidget {
   const PlayerlistScreen({super.key});
@@ -9,7 +10,6 @@ class PlayerlistScreen extends StatefulWidget {
 }
 
 class _PlayerlistScreenState extends State<PlayerlistScreen> {
-  List<Player> players = [];
   TextEditingController nameController = TextEditingController();
   String? selectedGender;
   String? selectedLevel;
@@ -22,6 +22,8 @@ class _PlayerlistScreenState extends State<PlayerlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final session = context.watch<SessionLogic>();
+
+    return Scaffold(appBar: AppBar(title: const Text("Pelaajat")));
   }
 }

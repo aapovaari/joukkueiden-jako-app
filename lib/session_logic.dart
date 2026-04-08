@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'dart:math';
 import 'player.dart';
 
 /// A class representing a floorball session, which manages players and teams
-class FloorballSession {
+class SessionLogic extends ChangeNotifier {
   List<Player> players = [];
   List<Player> teamBlack = [];
   List<Player> teamWhite = [];
@@ -79,6 +80,8 @@ class FloorballSession {
       if (checkScoreDifference() && checkGenderBalance()) {
         teamBlack.shuffle(Random());
         teamWhite.shuffle(Random());
+
+        notifyListeners();
         return true;
       }
     }
@@ -91,6 +94,7 @@ class FloorballSession {
   /// - [Player] player: The player to be added
   void addPlayer(Player player) {
     players.add(player);
+    notifyListeners();
   }
 
   /// Remove a player from the session by name
@@ -99,6 +103,40 @@ class FloorballSession {
   /// - [String] name: The name of the player to be removed
   void removePlayer(String name) {
     players.removeWhere((player) => player.name == name);
+    notifyListeners();
+  }
+
+  /// Create a new pair of players based on their names
+  /// and add the pair to the list of pairs
+  ///
+  /// Attributes:
+  /// - [String] player1Name: The name of the first player in the pair
+  /// - [String] player2Name: The name of the second player in the pair
+  ///
+  /// Return:
+  /// - `true` if the pair was successfully created and added
+  /// - `false` if either player was not found in the session
+  bool createNewPair(String player1Name, String player2Name) {
+    try {
+      Player player1 = players.firstWhere((p) => p.name == player1Name);
+      Player player2 = players.firstWhere((p) => p.name == player2Name);
+
+      if (player1 == player2) {
+        return false; // Cannot pair a player with themselves
+      }
+
+      if (pairs.any(
+        (pair) => pair.contains(player1) || pair.contains(player2),
+      )) {
+        return false; // One of the players is already in a pair
+      }
+
+      pairs.add([player1, player2]);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Get a string representation of all players in the session
@@ -150,37 +188,5 @@ class FloorballSession {
     int genderDiff = (blackMale - whiteMale).abs();
 
     return genderDiff <= 1;
-  }
-
-  /// Create a new pair of players based on their names
-  /// and add the pair to the list of pairs
-  ///
-  /// Attributes:
-  /// - [String] player1Name: The name of the first player in the pair
-  /// - [String] player2Name: The name of the second player in the pair
-  ///
-  /// Return:
-  /// - `true` if the pair was successfully created and added
-  /// - `false` if either player was not found in the session
-  bool createNewPair(String player1Name, String player2Name) {
-    try {
-      Player player1 = players.firstWhere((p) => p.name == player1Name);
-      Player player2 = players.firstWhere((p) => p.name == player2Name);
-
-      if (player1 == player2) {
-        return false; // Cannot pair a player with themselves
-      }
-
-      if (pairs.any(
-        (pair) => pair.contains(player1) || pair.contains(player2),
-      )) {
-        return false; // One of the players is already in a pair
-      }
-
-      pairs.add([player1, player2]);
-      return true;
-    } catch (e) {
-      return false;
-    }
   }
 }
