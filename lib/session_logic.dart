@@ -14,10 +14,25 @@ class SessionLogic extends ChangeNotifier {
   /// The method will attempt to generate balanced teams up to 1000 times.
   ///
   /// Return:
-  /// - `true` if balanced teams were successfully generated
-  /// - `false` if a balanced team could not be generated after 1000 attempts
-  bool generateTeams() {
+  /// - `true` if teams were successfully generated
+  /// - `false` if team could not be generated after 1000 attempts
+  bool generateTeams({
+    bool balanceGender = true,
+    bool balanceLevel = true,
+    bool respectPairs = true,
+  }) {
     int attempts = 0;
+
+    List<Player> remainingPlayers = [];
+    if (respectPairs) {
+      remainingPlayers = players
+          .where((p) => !pairs.any((pair) => pair.contains(p)))
+          .toList();
+    } else {
+      remainingPlayers = List.from(players);
+    }
+
+    var buckets = _createBuckets(remainingPlayers, balanceGender, balanceLevel);
 
     while (attempts < 1000) {
       attempts++;
@@ -25,59 +40,29 @@ class SessionLogic extends ChangeNotifier {
       teamBlack.clear();
       teamWhite.clear();
 
-      // Put the pairs in the same team
-      for (var pair in pairs) {
-        if (teamBlack.length <= teamWhite.length) {
-          teamBlack.addAll(pair);
-        } else {
-          teamWhite.addAll(pair);
-        }
-      }
-      //Get the remaining players who are not in pairs
-      List<Player> remainingPlayers = players
-          .where((p) => !teamBlack.contains(p) && !teamWhite.contains(p))
-          .toList();
-
-      // Get players with level 1, shuffle them and add them to teams
-      List<Player> level1Players =
-          remainingPlayers.where((p) => p.level == "1").toList()
-            ..shuffle(Random());
-
-      for (var player in level1Players) {
-        if (teamBlack.length <= teamWhite.length) {
-          teamBlack.add(player);
-        } else {
-          teamWhite.add(player);
+      if (respectPairs) {
+        for (var pair in pairs) {
+          if (teamBlack.length <= teamWhite.length) {
+            teamBlack.addAll(pair);
+          } else {
+            teamWhite.addAll(pair);
+          }
         }
       }
 
-      // Get players with level 2, shuffle them and add them to teams
-      List<Player> level2Players =
-          remainingPlayers.where((p) => p.level == "2").toList()
-            ..shuffle(Random());
-
-      for (var player in level2Players) {
-        if (teamBlack.length <= teamWhite.length) {
-          teamBlack.add(player);
-        } else {
-          teamWhite.add(player);
+      var bucketKeys = buckets.keys.toList()..shuffle(Random());
+      for (var key in bucketKeys) {
+        var bucketPlayers = buckets[key]!;
+        bucketPlayers.shuffle(Random());
+        for (var player in bucketPlayers) {
+          _assignToSmallerTeam(player);
         }
       }
 
-      // Get players with level 3, shuffle them and add them to teams
-      List<Player> level3Players =
-          remainingPlayers.where((p) => p.level == "3").toList()
-            ..shuffle(Random());
+      bool isLevelOk = !balanceLevel || _checkScoreDifference();
+      bool isGenderOk = !balanceGender || _checkGenderBalance();
 
-      for (var player in level3Players) {
-        if (teamBlack.length <= teamWhite.length) {
-          teamBlack.add(player);
-        } else {
-          teamWhite.add(player);
-        }
-      }
-
-      if (checkScoreDifference() && checkGenderBalance()) {
+      if (isLevelOk && isGenderOk) {
         teamBlack.shuffle(Random());
         teamWhite.shuffle(Random());
 
@@ -156,24 +141,10 @@ class SessionLogic extends ChangeNotifier {
   /// Return:
   /// - `true` if the score difference is 1 or less
   /// - `false` otherwise
-  bool checkScoreDifference() {
+  bool _checkScoreDifference() {
     int scoreDiff = (teamScoreBlack - teamScoreWhite).abs();
     return scoreDiff <= 1;
   }
-
-  /// Get a list of players in the session with a specific level
-  ///
-  /// Attributes:
-  /// - [String] level: The level to filter players by
-  List<Player> playersWithLevel(String level) =>
-      players.where((p) => p.level == level).toList();
-
-  /// Get a list of players in the session with a specific gender
-  ///
-  /// Attributes:
-  /// - [String] gender: The gender to filter players by
-  List<Player> playersWithGender(String gender) =>
-      players.where((p) => p.gender == gender).toList();
 
   /// Check if the gender balance between the two teams
   /// is within the allowed limit
@@ -181,12 +152,58 @@ class SessionLogic extends ChangeNotifier {
   /// Return:
   /// - `true` if the gender difference is 1 or less
   /// - `false` otherwise
-  bool checkGenderBalance() {
+  bool _checkGenderBalance() {
     int blackMale = teamBlack.where((p) => p.gender == "M").length;
     int whiteMale = teamWhite.where((p) => p.gender == "M").length;
 
     int genderDiff = (blackMale - whiteMale).abs();
 
     return genderDiff <= 1;
+  }
+
+  /// Assign a player to the team with fewer players
+  ///
+  /// Attributes:
+  /// - [Player] player: The player to be assigned
+  void _assignToSmallerTeam(Player player) {
+    if (teamBlack.length <= teamWhite.length) {
+      teamBlack.add(player);
+    } else {
+      teamWhite.add(player);
+    }
+  }
+
+  /// Split a list of players into a map based on their genders and levels
+  ///
+  /// Attributes:
+  /// - [List<Player>] players: The list of players to be split
+  /// - [bool] balanceGender: Whether to split by gender
+  /// - [bool] balanceLevel: Whether to split by level
+  ///
+  /// Return:
+  /// - A map where the keys are the combinations of gender
+  /// and level (e.g. "M_1") and the values are lists of players
+  /// with that combination
+  Map<String, List<Player>> _createBuckets(
+    List<Player> players,
+    bool balanceGender,
+    bool balanceLevel,
+  ) {
+    Map<String, List<Player>> buckets = {};
+
+    for (var player in players) {
+      String key = "";
+      if (balanceGender) key += "${player.gender}_";
+      if (balanceLevel) key += player.level;
+
+      if (key.isEmpty) key = "all";
+
+      if (!buckets.containsKey(key)) {
+        buckets[key] = [];
+      }
+      buckets[key]!.add(player);
+    }
+
+    return buckets;
   }
 }
