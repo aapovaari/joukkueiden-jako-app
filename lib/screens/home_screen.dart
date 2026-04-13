@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:joukkueiden_jako/screens/player_list_screen.dart';
 import 'package:joukkueiden_jako/screens/team_screen.dart';
+import 'package:joukkueiden_jako/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,7 +15,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [PlayerlistScreen(), TeamScreen()];
+    final List<Widget> screens = [
+      PlayerlistScreen(),
+      TeamScreen(),
+      SettingsScreen(),
+    ];
 
     return Scaffold(
       body: screens[selectedIndex],
@@ -32,6 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.group),
             label: 'Joukkueet',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Asetukset',
           ),
         ],
       ),
