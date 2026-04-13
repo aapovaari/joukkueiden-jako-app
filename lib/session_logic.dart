@@ -8,6 +8,9 @@ class SessionLogic extends ChangeNotifier {
   List<Player> teamBlack = [];
   List<Player> teamWhite = [];
   List<List<Player>> pairs = [];
+  bool balanceGender = true;
+  bool balanceLevel = true;
+  bool respectPairs = true;
 
   /// Generate teams based on the player's levels and genders,
   /// while ensuring that pairs are in the same team.
@@ -16,11 +19,7 @@ class SessionLogic extends ChangeNotifier {
   /// Return:
   /// - `true` if teams were successfully generated
   /// - `false` if team could not be generated after 1000 attempts
-  bool generateTeams({
-    bool balanceGender = true,
-    bool balanceLevel = true,
-    bool respectPairs = true,
-  }) {
+  bool generateTeams() {
     int attempts = 0;
 
     List<Player> remainingPlayers = [];
@@ -134,6 +133,45 @@ class SessionLogic extends ChangeNotifier {
   /// Calculate the total score of the white team
   int get teamScoreWhite =>
       teamWhite.fold(0, (sum, player) => sum + player.score);
+
+  /// Change the balanceGender setting and notify listeners
+  ///
+  /// Attributes:
+  /// - [bool] value: The new value for balanceGender
+  ///
+  /// Return:
+  /// - The updated value of balanceGender
+  bool changeBalanceGender(bool value) {
+    balanceGender = value;
+    notifyListeners();
+    return balanceGender;
+  }
+
+  /// Change the balanceLevel setting and notify listeners
+  ///
+  /// Attributes:
+  /// - [bool] value: The new value for balanceLevel
+  ///
+  /// Return:
+  /// - The updated value of balanceLevel
+  bool changeBalanceLevel(bool value) {
+    balanceLevel = value;
+    notifyListeners();
+    return balanceLevel;
+  }
+
+  /// Change the respectPairs setting and notify listeners
+  ///
+  /// Attributes:
+  /// /// - [bool] value: The new value for respectPairs
+  ///
+  /// Return:
+  /// - The updated value of respectPairs
+  bool changeRespectPairs(bool value) {
+    respectPairs = value;
+    notifyListeners();
+    return respectPairs;
+  }
 
   /// Check if the score difference between the two teams
   /// is within the allowed limit
