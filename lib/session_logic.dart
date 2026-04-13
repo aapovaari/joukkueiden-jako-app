@@ -138,39 +138,27 @@ class SessionLogic extends ChangeNotifier {
   ///
   /// Attributes:
   /// - [bool] value: The new value for balanceGender
-  ///
-  /// Return:
-  /// - The updated value of balanceGender
-  bool changeBalanceGender(bool value) {
+  void toggleGenderBalancing(bool value) {
     balanceGender = value;
     notifyListeners();
-    return balanceGender;
   }
 
   /// Change the balanceLevel setting and notify listeners
   ///
   /// Attributes:
   /// - [bool] value: The new value for balanceLevel
-  ///
-  /// Return:
-  /// - The updated value of balanceLevel
-  bool changeBalanceLevel(bool value) {
+  void toggleLevelBalancing(bool value) {
     balanceLevel = value;
     notifyListeners();
-    return balanceLevel;
   }
 
   /// Change the respectPairs setting and notify listeners
   ///
   /// Attributes:
   /// /// - [bool] value: The new value for respectPairs
-  ///
-  /// Return:
-  /// - The updated value of respectPairs
-  bool changeRespectPairs(bool value) {
+  void toggleRespectPairs(bool value) {
     respectPairs = value;
     notifyListeners();
-    return respectPairs;
   }
 
   /// Check if the score difference between the two teams
