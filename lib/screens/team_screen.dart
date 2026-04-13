@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:joukkueiden_jako/session_logic.dart';
-import 'package:joukkueiden_jako/player.dart';
+import 'package:joukkueiden_jako/logic/session_logic.dart';
+import 'package:joukkueiden_jako/logic/player.dart';
 
 class TeamScreen extends StatefulWidget {
   const TeamScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:joukkueiden_jako/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:joukkueiden_jako/session_logic.dart';
+import 'package:joukkueiden_jako/logic/session_logic.dart';
 
 void main() {
   runApp(
