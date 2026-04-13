@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:joukkueiden_jako/session_logic.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  @override
   Widget build(BuildContext context) {
-    return Container();
+    final session = context.watch<SessionLogic>();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Asetukset')),
+      body: Column(
+        children: [
+          SwitchListTile(
+            title: const Text('Tasapainota sukupuolten mukaan'),
+            value: session.balanceGender,
+            onChanged: (value) {
+              session.toggleGenderBalancing(value);
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Tasapainota tasojen mukaan'),
+            value: session.balanceLevel,
+            onChanged: (value) {
+              session.toggleLevelBalancing(value);
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Huomio parit'),
+            value: session.respectPairs,
+            onChanged: (value) {
+              session.toggleRespectPairs(value);
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
