@@ -47,15 +47,17 @@ class _TeamScreenState extends State<TeamScreen> {
 
   Widget _buildTeamColumn(String title, List<Player> team) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          ...team.map((player) => Text(player.name)),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            ...team.map((player) => Text(player.name)),
+          ],
+        ),
       ),
     );
   }
